@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: spring-cache-location-finder
+
+  datasource:
+    url: jdbc:h2:mem:countryDb
+    username: sa
+    password: sa
+    driverClassName: org.h2.Driver
+    jpa:
+      database-platform: org.hibernate.dialect.H2Dialect
+    initialization-mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  h2:
+    console.enabled: true
+
+  sql:
+    init:
+      mode: always

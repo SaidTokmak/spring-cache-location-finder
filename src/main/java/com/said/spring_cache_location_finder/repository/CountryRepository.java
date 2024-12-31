@@ -7,7 +7,5 @@ import java.util.UUID;
 
 public interface CountryRepository extends JpaRepository<Country, UUID> {
 
-    void deleteByName(String name);
-
     Country findByName(String name);
 }

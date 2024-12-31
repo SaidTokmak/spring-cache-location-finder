@@ -26,3 +26,8 @@ spring:
   sql:
     init:
       mode: always
+
+logging:
+  level:
+    org.springframework.cache: debug
+    org.springframework.cache.interceptor.CacheInterceptor: debug

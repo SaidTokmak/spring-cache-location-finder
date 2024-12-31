@@ -1,5 +1,6 @@
 package com.said.spring_cache_location_finder.service.impl;
 
+import com.said.spring_cache_location_finder.config.CacheConfig;
 import com.said.spring_cache_location_finder.entity.Country;
 import com.said.spring_cache_location_finder.repository.CountryRepository;
 import com.said.spring_cache_location_finder.service.CountryService;
@@ -16,12 +17,12 @@ public class CountryServiceImpl implements CountryService {
 
     private final CountryRepository countryRepository;
 
-    public CountryServiceImpl(CountryRepository countryRepository) {
+    public CountryServiceImpl(CountryRepository countryRepository, CacheConfig cacheConfig) {
         this.countryRepository = countryRepository;
     }
 
     @Override
-    @Cacheable(value = "all_countries")
+    @Cacheable(value = "all_countries", key = "#root.methodName")
     public List<Country> getAllCountries() {
         System.out.println("Retrieve all countries from database!");
         return countryRepository.findAll();
@@ -35,24 +36,33 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    @CachePut(value = "all_countries", key = "#country.name")
+    @Caching(
+            put = {@CachePut(value = "country", key = "#country.name")},
+            evict = {@CacheEvict(value = "all_countries", allEntries = true)}
+    )
     public Country insertNewCountry(Country country) {
         return countryRepository.save(country);
     }
 
     @Override
     @Caching(
-            cacheable = {@Cacheable(value = "all_countries")},
-            evict = {@CacheEvict(value = "all_countries", key = "#countryName")}
+            put = {@CachePut(value = "country", key = "#countryName")},
+            evict = {@CacheEvict(value = "all_countries", allEntries = true)}
     )
     public Country updateCountry(String countryName, Country country) {
         return countryRepository.save(country);
     }
 
     @Override
-    @CacheEvict(value = "all_countries")
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "all_countries", allEntries = true),
+                    @CacheEvict(value = "country", key = "#countryName")
+            }
+    )
     public boolean deleteByName(String countryName) {
-        countryRepository.deleteByName(countryName);
+        Country byName = countryRepository.findByName(countryName);
+        countryRepository.deleteById(byName.getId());
         return true;
     }
 }
